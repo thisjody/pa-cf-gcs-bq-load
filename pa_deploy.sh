@@ -1,4 +1,4 @@
-gcloud functions deploy pa-cf-gcs-bq \
+gcloud functions deploy pa-cf-gcs-bq-load \
   --gen2 \
   --runtime=python311 \
   --region=us-west1 \
