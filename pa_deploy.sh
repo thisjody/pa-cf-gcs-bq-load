@@ -1,0 +1,11 @@
+gcloud functions deploy pa-cf-gcs-bq \
+  --gen2 \
+  --runtime=python311 \
+  --region=us-west1 \
+  --service-account=pa-cf-deploy-gcs-bq-load-sa@acep-ext-eielson-2021.iam.gserviceaccount.com \
+  --source=src \
+  --entry-point=bq_load_from_gcs \
+  --trigger-topic pa-gcs-event \
+  --memory 16384MB \
+  --timeout 540s \
+  --set-env-vars "PROJECT_ID=acep-ext-eielson-2021,IMPERSONATE_SA=pa-gcs-ps-bq-privileged-sa@acep-ext-eielson-2021.iam.gserviceaccount.com,TARGET_SCOPES=https://www.googleapis.com/auth/cloud-platform,SA_CREDENTIALS_SECRET_NAME=pa-cf-deploy-gcs-bq-load-sa-credentials"
