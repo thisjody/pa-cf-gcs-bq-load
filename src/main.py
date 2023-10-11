@@ -10,9 +10,15 @@ import os
 
 PROJECT_ID = os.getenv('PROJECT_ID')
 
+def get_secret(secret_name):
+    """Retrieve secrets from Google Secret Manager."""
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{PROJECT_ID}/secrets/{secret_name}/versions/latest"
+    response = client.access_secret_version(name=name)
+    return json.loads(response.payload.data.decode('UTF-8'))
+
 def bq_load_from_gcs(event, context):
-    print(f'Received event: {event}')  
-    logging.info(f'Received event: {event}')
+    """Function to handle Pub/Sub events and load data into BigQuery."""
     print(f"Event type: {context.event_type}")
     print(f"Event timestamp: {context.timestamp}")
 
@@ -28,3 +34,5 @@ def bq_load_from_gcs(event, context):
     except Forbidden as e:
         print(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
         raise
+
+
