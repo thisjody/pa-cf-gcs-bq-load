@@ -8,6 +8,7 @@ import base64
 import json
 import os
 
+logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
 
 def get_secret(secret_name):
@@ -19,8 +20,8 @@ def get_secret(secret_name):
 
 def bq_load_from_gcs(event, context):
     """Function to handle Pub/Sub events and load data into BigQuery."""
-    print(f"Event type: {context.event_type}")
-    print(f"Event timestamp: {context.timestamp}")
+    logging.info(f"Event type: {context.event_type}")
+    logging.info(f"Event timestamp: {context.timestamp}")
 
     try:
         pubsub_message = base64.b64decode(event['data']).decode('utf-8')
@@ -28,11 +29,11 @@ def bq_load_from_gcs(event, context):
 
         bucket = message_dict.get('bucket')
         file_name = message_dict.get('file_name')
-        print(f"Bucket: {bucket}")
-        print(f"File Name: {file_name}")
+        logging.info(f"Bucket: {bucket}")
+        logging.info(f"File Name: {file_name}")
 
     except Forbidden as e:
-        print(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
+        logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
         raise
 
 
