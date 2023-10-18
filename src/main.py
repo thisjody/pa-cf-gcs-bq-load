@@ -50,10 +50,24 @@ def bq_load_from_gcs(event, context):
 
         bucket = message_dict.get('bucket')
         file_name = message_dict.get('file_name')
+        dataset_name = message_dict.get('dataset_name')  # Extract the dataset name from the message
         logging.info(f"Bucket: {bucket}")
         logging.info(f"File Name: {file_name}")
+        logging.info(f"Dataset Name: {dataset_name}")
+
+        # Check if the dataset exists, if not create it
+        dataset_id = f"{PROJECT_ID}.{dataset_name}"
+        try:
+            bq_client.get_dataset(dataset_id)
+            logging.info(f"Dataset {dataset_name} already exists.")
+        except NotFound:
+            logging.info(f"Dataset {dataset_name} not found. Creating it now.")
+            dataset = bigquery.Dataset(dataset_id)
+            bq_client.create_dataset(dataset)
+            logging.info(f"Dataset {dataset_name} created successfully.")
 
     except Forbidden as e:
         logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
         raise
+
 
