@@ -1,6 +1,5 @@
-from google.cloud import bigquery, pubsub_v1, secretmanager
+from google.cloud import bigquery, secretmanager
 from google.oauth2 import service_account
-from google.auth.transport import requests
 from google.auth import impersonated_credentials
 from google.api_core.exceptions import NotFound, Forbidden
 import logging
@@ -10,6 +9,7 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
+SA_MAP = json.loads(os.getenv('IMPERSONATE_SA_MAP'))
 
 def get_secret(secret_name):
     """Retrieve secrets from Google Secret Manager."""
@@ -18,20 +18,38 @@ def get_secret(secret_name):
     response = client.access_secret_version(name=name)
     return json.loads(response.payload.data.decode('UTF-8'))
 
-def get_impersonated_credentials():
+def get_impersonated_credentials(action='load'):
     """Retrieve impersonated credentials."""
-    sa_credentials_secret_name = os.environ.get('SA_CREDENTIALS_SECRET_NAME')
+    sa_credentials_secret_name = os.getenv('SA_CREDENTIALS_SECRET_NAME')
     sa_credentials = get_secret(sa_credentials_secret_name)
     credentials = service_account.Credentials.from_service_account_info(sa_credentials)
-    target_principal = os.getenv('IMPERSONATE_SA')
+    target_principal = SA_MAP.get(action)
+    if not target_principal:
+        raise ValueError(f"No service account mapped for action: {action}")
     target_scopes = os.getenv('TARGET_SCOPES').split(",")
-
     return impersonated_credentials.Credentials(
         source_credentials=credentials,
         target_principal=target_principal,
         target_scopes=target_scopes,
-        lifetime=600  # in seconds, optional
+        lifetime=600
     )
+
+def check_and_create_dataset(bq_client, dataset_name):
+    """Check if dataset exists, if not create it."""
+    dataset_id = f"{PROJECT_ID}.{dataset_name}"
+    try:
+        bq_client.get_dataset(dataset_id)
+        logging.info(f"Dataset {dataset_name} already exists.")
+    except NotFound:
+        logging.info(f"Dataset {dataset_name} not found. Creating it now.")
+        dataset = bigquery.Dataset(dataset_id)
+        bq_client.create_dataset(dataset)
+        logging.info(f"Dataset {dataset_name} created successfully.")
+
+def publish_to_topic(data):
+    """Placeholder function for publishing data to a yet-to-be-defined topic."""
+    # This function will be implemented later to publish data to a topic
+    pass
 
 def bq_load_from_gcs(event, context):
     """Function to handle Pub/Sub events and load data into BigQuery."""
@@ -39,7 +57,6 @@ def bq_load_from_gcs(event, context):
     logging.info(f"Event timestamp: {context.timestamp}")
 
     try:
-        # Get impersonated credentials and initialize BigQuery client
         credentials = get_impersonated_credentials()
         bq_client = bigquery.Client(credentials=credentials, project=PROJECT_ID)
         logging.info("BigQuery client initialized successfully.")
@@ -50,24 +67,16 @@ def bq_load_from_gcs(event, context):
 
         bucket = message_dict.get('bucket')
         file_name = message_dict.get('file_name')
-        dataset_name = message_dict.get('dataset_name')  # Extract the dataset name from the message
+        dataset_name = message_dict.get('dataset_name')
         logging.info(f"Bucket: {bucket}")
         logging.info(f"File Name: {file_name}")
         logging.info(f"Dataset Name: {dataset_name}")
 
-        # Check if the dataset exists, if not create it
-        dataset_id = f"{PROJECT_ID}.{dataset_name}"
-        try:
-            bq_client.get_dataset(dataset_id)
-            logging.info(f"Dataset {dataset_name} already exists.")
-        except NotFound:
-            logging.info(f"Dataset {dataset_name} not found. Creating it now.")
-            dataset = bigquery.Dataset(dataset_id)
-            bq_client.create_dataset(dataset)
-            logging.info(f"Dataset {dataset_name} created successfully.")
+        check_and_create_dataset(bq_client, dataset_name)
+
+        # Placeholder: Call the publish function when ready
+        # publish_to_topic(your_data_here)
 
     except Forbidden as e:
         logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
         raise
-
-
