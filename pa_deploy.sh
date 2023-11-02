@@ -27,7 +27,7 @@ fi
 source $ENV_FILE
 
 # Check if required variables are set
-declare -a required_vars=("GEN2" "RUNTIME" "REGION" "SERVICE_ACCOUNT" "SOURCE" "ENTRY_POINT" "TRIGGER_TOPIC" "MEMORY" "TIMEOUT" "PROJECT_ID" "IMPERSONATE_SA" "TARGET_SCOPES" "SA_CREDENTIALS_SECRET_NAME")
+declare -a required_vars=("GEN2" "RUNTIME" "REGION" "SERVICE_ACCOUNT" "SOURCE" "ENTRY_POINT" "TRIGGER_TOPIC" "MEMORY" "TIMEOUT" "PROJECT_ID" "IMPERSONATE_SA_MAP" "TARGET_SCOPES" "SA_CREDENTIALS_SECRET_NAME")
 unset_vars=()
 
 for var in "${required_vars[@]}"; do
@@ -37,15 +37,15 @@ for var in "${required_vars[@]}"; do
 done
 
 if [ ${#unset_vars[@]} -ne 0 ]; then
-    echo "Error: The following required environment variables are not set: ${unset_vars[*]}"
+    echo "Error: Missing environment variables: ${unset_vars[@]}"
     exit 1
 fi
 
 # Formulate the SET_ENV_VARS value
-SET_ENV_VARS="PROJECT_ID=$PROJECT_ID,IMPERSONATE_SA=$IMPERSONATE_SA,TARGET_SCOPES=$TARGET_SCOPES,SA_CREDENTIALS_SECRET_NAME=$SA_CREDENTIALS_SECRET_NAME"
+SET_ENV_VARS="PROJECT_ID=$PROJECT_ID,IMPERSONATE_SA_MAP=$IMPERSONATE_SA_MAP,TARGET_SCOPES=$TARGET_SCOPES,SA_CREDENTIALS_SECRET_NAME=$SA_CREDENTIALS_SECRET_NAME"
 
 # Deploy the function
-gcloud functions deploy pa-cf-gcs-bq-load \
+gcloud functions deploy $CLOUDFUNCTION \
   --$GEN2 \
   --runtime=$RUNTIME \
   --region=$REGION \
