@@ -9,7 +9,11 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
-SA_MAP = json.loads(os.getenv('IMPERSONATE_SA_MAP'))
+# Reconstruct IMPERSONATE_SA_MAP
+IMPERSONATE_SA_MAP = {
+    'publish': os.environ['PUBLISH_SA'],
+    'load': os.environ['LOAD_SA']
+}
 
 def get_secret(secret_name):
     """Retrieve secrets from Google Secret Manager."""
@@ -23,7 +27,7 @@ def get_impersonated_credentials(action='load'):
     sa_credentials_secret_name = os.getenv('SA_CREDENTIALS_SECRET_NAME')
     sa_credentials = get_secret(sa_credentials_secret_name)
     credentials = service_account.Credentials.from_service_account_info(sa_credentials)
-    target_principal = SA_MAP.get(action)
+    target_principal = IMPERSONATE_SA_MAP.get(action)
     if not target_principal:
         raise ValueError(f"No service account mapped for action: {action}")
     target_scopes = os.getenv('TARGET_SCOPES').split(",")
