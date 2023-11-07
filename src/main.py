@@ -9,7 +9,7 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
-# Reconstruct IMPERSONATE_SA_MAP
+
 IMPERSONATE_SA_MAP = {
     'publish': os.environ['PUBLISH_SA'],
     'load': os.environ['LOAD_SA']
@@ -47,6 +47,7 @@ def check_and_create_dataset(bq_client, dataset_name):
     except NotFound:
         logging.info(f"Dataset {dataset_name} not found. Creating it now.")
         dataset = bigquery.Dataset(dataset_id)
+        # TODO: Set additional dataset properties, such as location, here.
         bq_client.create_dataset(dataset)
         logging.info(f"Dataset {dataset_name} created successfully.")
 
@@ -64,7 +65,6 @@ def bq_load_from_gcs(event, context):
         credentials = get_impersonated_credentials()
         bq_client = bigquery.Client(credentials=credentials, project=PROJECT_ID)
         logging.info("BigQuery client initialized successfully.")
-        logging.info(f"BigQuery client: {bq_client}")
 
         pubsub_message = base64.b64decode(event['data']).decode('utf-8')
         message_dict = json.loads(pubsub_message)
@@ -72,11 +72,16 @@ def bq_load_from_gcs(event, context):
         bucket = message_dict.get('bucket')
         file_name = message_dict.get('file_name')
         dataset_name = message_dict.get('dataset_name')
+        table_name = message_dict.get('table_name')
         logging.info(f"Bucket: {bucket}")
         logging.info(f"File Name: {file_name}")
         logging.info(f"Dataset Name: {dataset_name}")
+        logging.info(f"Table Name: {table_name}")
 
         check_and_create_dataset(bq_client, dataset_name)
+
+        # Here you would check and create the table if necessary.
+        # check_and_create_table(bq_client, dataset_name, table_name)
 
         # Placeholder: Call the publish function when ready
         # publish_to_topic(your_data_here)
