@@ -121,6 +121,11 @@ def bq_load_from_gcs(event, context):
         # Check and create the table if necessary.
         check_and_create_table(bq_client, dataset_name, table_name, schema)
 
+        gcs_uri = f"gs://{bucket}/{file_name}"
+        logging.info(f"gcs_uri: {gcs_uri}")
+
+
+
 
         # Placeholder: Call the publish function when ready
         # publish_to_topic(your_data_here)
