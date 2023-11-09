@@ -124,6 +124,28 @@ def bq_load_from_gcs(event, context):
         gcs_uri = f"gs://{bucket}/{file_name}"
         logging.info(f"gcs_uri: {gcs_uri}")
 
+        # Configure the BigQuery load job
+        job_config = bigquery.LoadJobConfig(
+            schema=schema,
+            source_format=bigquery.SourceFormat.CSV,
+            skip_leading_rows=0,  # Skip header row; adjust to 0 if no header is present
+            autodetect=False,  # Set to False if you don't want BQ to detect schema automatically
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND  # Use WRITE_TRUNCATE to overwrite, WRITE_APPEND to append
+        )
+
+        # Load the data from GCS into BigQuery
+        load_job = bq_client.load_table_from_uri(
+            gcs_uri, f"{PROJECT_ID}.{dataset_name}.{table_name}", job_config=job_config
+        )
+
+        # Waits for the job to complete
+        try:
+            load_job.result()
+            logging.info(f"Job finished. Loaded data from {gcs_uri} into {dataset_name}.{table_name}")
+        except Exception as e:
+            logging.error(f"Failed to load data from GCS to BigQuery: {e}")
+            raise
+
 
 
 
