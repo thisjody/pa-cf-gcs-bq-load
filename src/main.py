@@ -59,6 +59,7 @@ def check_and_create_dataset(bq_client, dataset_name, location='US'):
             logging.error(f"Failed to create dataset: {e}")
             raise
 
+'''
 def check_and_create_table(bq_client, dataset_name, table_name, schema):
     """Check if a table exists within the dataset, if not create it with the provided schema."""
     table_id = f"{PROJECT_ID}.{dataset_name}.{table_name}"
@@ -77,6 +78,23 @@ def check_and_create_table(bq_client, dataset_name, table_name, schema):
             logging.info(f"Created table {created_table.project}.{created_table.dataset_id}.{created_table.table_id}")
         except Exception as e:
             # If there's an error in creating the table, log that exception as well.
+            logging.error(f"Failed to create table: {e}")
+            raise
+    '''
+
+def check_and_create_table(bq_client, dataset_name, table_name):
+    """Check if a table exists within the dataset, if not create it."""
+    table_id = f"{PROJECT_ID}.{dataset_name}.{table_name}"
+    try:
+        table = bq_client.get_table(table_id)  # Make an API request.
+        logging.info(f"Table {table_name} already exists in dataset {dataset_name}.")
+    except NotFound as e:
+        logging.info(f"Table {table_name} not found in dataset {dataset_name}. Creating it now.")
+        table = bigquery.Table(table_id)
+        try:
+            created_table = bq_client.create_table(table, timeout=30)  # Make an API request.
+            logging.info(f"Created table {created_table.project}.{created_table.dataset_id}.{created_table.table_id}")
+        except Exception as e:
             logging.error(f"Failed to create table: {e}")
             raise
 
@@ -107,29 +125,21 @@ def bq_load_from_gcs(event, context):
         logging.info(f"Dataset Name: {dataset_name}")
         logging.info(f"Table Name: {table_name}")
 
+ 
         # Check and create the dataset if necessary
         check_and_create_dataset(bq_client, dataset_name)
 
-        # Define the schema for the table.
-        schema = [
-            bigquery.SchemaField("alpha", "STRING", mode="NULLABLE"),
-            bigquery.SchemaField("beta", "STRING", mode="NULLABLE"),
-            bigquery.SchemaField("gamma", "STRING", mode="NULLABLE"),
-            bigquery.SchemaField("delta", "STRING", mode="NULLABLE"),
-        ]
-
-        # Check and create the table if necessary.
-        check_and_create_table(bq_client, dataset_name, table_name, schema)
+        # Check and create the table if necessary
+        check_and_create_table(bq_client, dataset_name, table_name)
 
         gcs_uri = f"gs://{bucket}/{file_name}"
         logging.info(f"gcs_uri: {gcs_uri}")
 
-        # Configure the BigQuery load job
+        # Configure the BigQuery load job with auto-detection
         job_config = bigquery.LoadJobConfig(
-            schema=schema,
             source_format=bigquery.SourceFormat.CSV,
-            skip_leading_rows=0,  # Skip header row; adjust to 0 if no header is present
-            autodetect=False,  # Set to False if you don't want BQ to detect schema automatically
+            skip_leading_rows=1,  # Skip header row; adjust to 0 if no header is present
+            autodetect=True,  # Enable schema auto-detection
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND  # Use WRITE_TRUNCATE to overwrite, WRITE_APPEND to append
         )
 
