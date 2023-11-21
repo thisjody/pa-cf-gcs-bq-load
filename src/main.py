@@ -16,7 +16,7 @@ IMPERSONATE_SA_MAP = {
 }
 
 def get_secret(secret_name):
-    """Retrieve secrets from Google Secret Manager."""
+    """Retrieve secrets from Google Secret Manager for permission elevation."""
     client = secretmanager.SecretManagerServiceClient()
     name = f"projects/{PROJECT_ID}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(name=name)
