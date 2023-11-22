@@ -20,26 +20,34 @@ The `pa-cf-gcs-bq-load` function exemplifies a serverless approach, allowing for
 
 ## Function Operation
 
-The `pa-cf-gcs-bq-load` Cloud Function operates in the following manner to ensure efficient and secure data processing from Google Cloud Storage to BigQuery:
+The `pa-cf-gcs-bq-load` Cloud Function operates through a series of steps, orchestrated to efficiently and securely process data from Google Cloud Storage (GCS) into Google BigQuery:
 
-1. **Triggering**: The function is triggered by an event in Google Cloud Storage, specifically when a file is uploaded to a designated bucket. This event initiates the function's execution.
+1. **Triggering Mechanism**:
+   - The function is indirectly triggered by an event in Google Cloud Storage, specifically the upload of files to a designated bucket.
+   - An upstream function, `pa-cf-gcs-event`, is directly activated by this GCS event via Eventarc. It processes the event and then publishes a message to a specific Pub/Sub topic.
+   - The `pa-cf-gcs-bq-load` function subscribes to this Pub/Sub topic. When a message is published to the topic, it triggers the execution of `pa-cf-gcs-bq-load`.
 
-2. **Credentials Impersonation**: Upon activation, the function determines the necessary action (e.g., data loading) and retrieves the appropriate service account credentials for impersonation. This is achieved through the `get_impersonated_credentials` function, which fetches credentials from the Google Secret Manager and creates impersonated credentials based on the action required.
+2. **Credentials Impersonation**:
+   - Upon activation, `pa-cf-gcs-bq-load` identifies the necessary action (such as data loading) and retrieves the appropriate service account credentials for impersonation through the `get_impersonated_credentials` function.
+   - This function securely fetches credentials from the Google Secret Manager and creates impersonated credentials based on the required action.
 
-3. **BigQuery Client Initialization**: With the impersonated credentials, the function initializes a BigQuery client. This client is used to interact with BigQuery for dataset and table creation, and data loading.
+3. **BigQuery Client Initialization**:
+   - With the impersonated credentials, a BigQuery client is initialized. This client is utilized to manage datasets and tables in BigQuery and to load data into BigQuery tables.
 
 4. **Dataset and Table Management**:
-   - The function checks if the specified dataset exists in BigQuery using `check_and_create_dataset`. If it does not exist, it is created.
-   - Similarly, it checks for the existence of the specified table within the dataset using `check_and_create_table`. If the table is not found, it is created with the necessary configuration.
+   - The function first checks for the existence of the specified dataset in BigQuery, creating it if necessary.
+   - It also checks for the specified table within the dataset, creating it with the necessary configuration if it does not exist.
 
 5. **Data Loading**:
-   - The function parses the event data to retrieve the bucket name and file name of the uploaded file.
-   - It constructs a URI for the file in Google Cloud Storage and sets up a BigQuery load job configuration. This configuration includes settings like source format, schema detection, and write disposition.
-   - The function then loads the data from the GCS file into the specified BigQuery table using the BigQuery client.
+   - After parsing the Pub/Sub message to extract details like the bucket name and file name, the function constructs a URI for the GCS file.
+   - It then sets up a BigQuery load job configuration with parameters such as source format, schema detection, and write disposition.
+   - The data is loaded from the GCS file into the specified BigQuery table using this configuration.
 
-6. **Error Handling and Logging**: Throughout its operation, the function logs various informational messages, including the steps being performed and any errors encountered. Robust error handling is implemented to log and raise exceptions, especially during critical operations like dataset/table creation and data loading.
+6. **Error Handling and Logging**:
+   - Throughout its operation, the function logs various informational messages, including the steps being performed and any errors encountered. Robust error handling is implemented to log and raise exceptions, especially during critical operations like dataset/table creation and data loading.
 
-7. **Scalable and Flexible Data Processing**: The function is designed to handle various data formats and sizes, making it a versatile tool for different types of data processing tasks in Google Cloud.
+7. **Scalability and Flexibility**:
+   - Designed to handle various data formats and volumes, the function is a versatile tool for different data processing tasks within the Google Cloud environment.
 
-This operation flow ensures that the `pa-cf-gcs-bq-load` Cloud Function not only automates the data loading process but also does so with a high degree of reliability, security, and scalability, perfectly fitting into a modern cloud-based data pipeline.
+This operation flow enables the `pa-cf-gcs-bq-load` Cloud Function to automate data loading processes with a high degree of reliability, security, and scalability, fitting seamlessly into a modern cloud-based data pipeline.
 
