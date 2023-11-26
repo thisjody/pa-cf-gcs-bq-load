@@ -36,6 +36,32 @@ For the effective deployment and management of the `pa-cf-gcs-bq-load` Cloud Fun
 
 The integration with the PA-CF Shared Configs Toolkit is vital for ensuring that the `pa-cf-gcs-bq-load` function is deployed efficiently, securely, and in a way that is consistent with the broader data processing infrastructure.
 
+## Prerequisites
+
+Before deploying and utilizing the `pa-cf-gcs-bq-load` Cloud Function, the following prerequisites must be met to ensure successful operation:
+
+1. **Google Cloud SDK**: Installation of the Google Cloud SDK is crucial as it provides the necessary tools for interacting with Google Cloud resources. Ensure that it is properly installed and configured. [Google Cloud SDK Installation Guide](https://cloud.google.com/sdk/docs/install).
+
+2. **Google Cloud Project**: A Google Cloud Project is required where the Cloud Function, GCS, and Pub/Sub are hosted. Have your `PROJECT_ID` readily available for configuration.
+
+3. **Environment Variables**: The function relies on various environment variables for its operation. Ensure the following are set:
+    - `PROJECT_ID`: Your Google Cloud Project ID.
+    - `PUBLISH_SA`: Service account for publishing operations.
+    - `LOAD_SA`: Service account for data loading operations.
+    - `SA_CREDENTIALS_SECRET_NAME`: The name of the secret in Google Secret Manager containing the service account credentials.
+    - `TARGET_SCOPES`: The required scopes for the impersonated service account.
+
+4. **Google Secret Manager**: It is essential to use Google Secret Manager for storing necessary secrets, like service account credentials, to enhance security.
+
+5. **Google Cloud Storage (GCS)**: The function is designed to react to events in a GCS bucket. Ensure that you have a GCS bucket configured to generate events.
+
+6. **Google Pub/Sub**: Set up a Pub/Sub topic that the function will subscribe to. Ensure the necessary permissions are in place for the function to access and subscribe to this topic.
+
+7. **Permissions**: Adequate permissions are needed for the function and its service account. This includes permissions for accessing the Secret Manager, impersonating other service accounts, and interacting with BigQuery and Pub/Sub.
+
+8. **PA-CF Shared Configs Toolkit**: Familiarity with the PA-CF Shared Configs Toolkit is recommended for efficient setup and deployment.
+
+Completing these prerequisites ensures that the `pa-cf-gcs-bq-load` Cloud Function can be deployed smoothly and will operate as intended in your Google Cloud environment.
 
 ## Function Operation
 
