@@ -161,4 +161,17 @@ The `pa-cf-gcs-bq-load` Cloud Function relies on several external dependencies t
 
 It's important to ensure that these dependencies are installed and properly configured before deploying and running the `pa-cf-gcs-bq-load` Cloud Function. This will help in avoiding runtime errors and ensure the function operates as expected.
 
+## Roles and Service Accounts
+
+For the `pa-cf-gcs-bq-load` Cloud Function to operate effectively, it is essential to have properly configured roles and service accounts. This ensures that the function has the necessary permissions to access and manipulate cloud resources.
+
+1. **Deploy Role (`custom_role_pa_cf_deploy`)**:
+   - This role is used for deploying the Cloud Function.
+   - It should have permissions sufficient for the deployment process, including accessing Cloud Functions, Pub/Sub, Secret Manager, and any other resources the function interacts with.
+   - The role's definition can be found in `pa-cf-deploy-role.json`.
+
+2. **Privileged Role (`custom_role_pa_gcs_bq_load_privileged`)**:
+   - A more privileged role, used by the function for executing its primary tasks like data loading and publishing.
+   - Permissions include read/write access to BigQuery, read access to GCS, and the ability to publish to Pub/Sub topics.
+   - The role's definition is specified in `pa-gcs-bq-load-
 
