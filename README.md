@@ -134,3 +134,31 @@ The `pa-cf-gcs-bq-load` Cloud Function is equipped with robust error handling me
 
 Through these error handling strategies, the `pa-cf-gcs-bq-load` Cloud Function ensures that data processing workflows remain robust and dependable, even when encountering unforeseen challenges.
 
+## Dependencies
+
+The `pa-cf-gcs-bq-load` Cloud Function relies on several external dependencies to ensure smooth and efficient operation. These dependencies include various Python packages and Google Cloud services. Here is a list of the key dependencies:
+
+1. **Google Cloud BigQuery**: Used for managing and interacting with BigQuery datasets and tables, and for loading data into BigQuery.
+
+2. **Google Cloud Storage**: Essential for accessing and handling files stored in Google Cloud Storage buckets.
+
+3. **Google Cloud Pub/Sub**: For subscribing to Pub/Sub topics and processing messages that trigger the function.
+
+4. **Google Secret Manager**: Utilized for securely managing and accessing sensitive information like service account credentials.
+
+5. **Google Cloud SDK**: Provides the necessary tools for interacting with Google Cloud resources.
+
+6. **Python Libraries**:
+    - `google-cloud-bigquery`: The Python client library for Google BigQuery.
+    - `google-cloud-storage`: The Python client library for Google Cloud Storage.
+    - `google-cloud-pubsub`: The Python client library for Google Cloud Pub/Sub.
+    - `google-auth`: Provides authentication and authorization functionalities.
+    - `google-auth-httplib2` and `google-auth-oauthlib`: Support libraries for `google-auth`.
+    - `google-cloud-secret-manager`: The Python client library for accessing secrets stored in Google Secret Manager.
+
+7. **Logging and Error Handling Tools**:
+    - `logging`: A standard Python library used for logging events and errors.
+
+It's important to ensure that these dependencies are installed and properly configured before deploying and running the `pa-cf-gcs-bq-load` Cloud Function. This will help in avoiding runtime errors and ensure the function operates as expected.
+
+
