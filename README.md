@@ -173,5 +173,12 @@ For the `pa-cf-gcs-bq-load` Cloud Function to operate effectively, it is essenti
 2. **Privileged Role (`custom_role_pa_gcs_bq_load_privileged`)**:
    - A more privileged role, used by the function for executing its primary tasks like data loading and publishing.
    - Permissions include read/write access to BigQuery, read access to GCS, and the ability to publish to Pub/Sub topics.
-   - The role's definition is specified in `pa-gcs-bq-load-
+   - The role's definition is specified in `pa-gcs-bq-load-privileged-role.json`. This document outlines the detailed permissions and capabilities assigned to this role, ensuring it has the necessary access rights while adhering to the principle of least privilege.
+
+3. **Service Accounts**:
+   - **Deploy Service Account (`pa-cf-deploy-sa`)**: Specifically for the deployment of the Cloud Function. It is assigned the `custom_role_pa_cf_deploy` role.
+   - **Privileged Service Account (`pa-gcs-bq-load-privileged-sa`)**: Used by the function for higher privilege operations. It is assigned the `custom_role_pa_gcs_bq_load_privileged` role and is used in service account impersonation for specific tasks.
+
+Proper configuration of these roles and service accounts is critical for the secure and effective functioning of the `pa-cf-gcs-bq-load` Cloud Function within the Google Cloud environment.
+
 
