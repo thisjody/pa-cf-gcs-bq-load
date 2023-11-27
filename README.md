@@ -116,4 +116,21 @@ The `pa-cf-gcs-bq-load` Cloud Function plays a pivotal role in the data processi
 
 The `pa-cf-gcs-bq-load` function stands out as a reliable, secure, and efficient solution for automating data flow from GCS to BigQuery, making it a valuable asset in the cloud data processing ecosystem.
 
+## Error Handling
+
+The `pa-cf-gcs-bq-load` Cloud Function is equipped with robust error handling mechanisms to ensure reliable operation even in the face of unexpected issues. These mechanisms are designed to identify, log, and appropriately respond to various types of errors that may occur during the function's execution:
+
+1. **Logging of Exceptions**: All exceptions and errors encountered during the operation of the function are logged with detailed information. This includes errors during dataset and table creation, data loading, or while interacting with other cloud services.
+
+2. **Handling Google Cloud API Errors**: Specific errors related to Google Cloud APIs, such as `NotFound` and `Forbidden` exceptions, are caught and handled. This ensures that the function can gracefully handle issues such as missing resources or permission problems.
+
+3. **Error Propagation**: In cases where errors cannot be resolved within the function (e.g., permission issues, invalid configurations), these errors are propagated upwards. This allows for external monitoring tools or workflows to detect and respond to these issues.
+
+4. **Retry Mechanism**: For transient errors, especially those related to network issues or temporary service unavailability, the function includes a retry mechanism. This helps in maintaining the function's resilience and reliability.
+
+5. **Secure Failure State**: In scenarios where continued operation could lead to data inconsistency or other critical issues, the function is designed to fail securely. This approach prioritizes data integrity and system stability.
+
+6. **Alerting and Monitoring Integration**: The function's error handling integrates with Google Cloud's monitoring and alerting systems, enabling real-time notifications and in-depth analysis of error conditions.
+
+Through these error handling strategies, the `pa-cf-gcs-bq-load` Cloud Function ensures that data processing workflows remain robust and dependable, even when encountering unforeseen challenges.
 
