@@ -79,6 +79,8 @@ def check_and_create_table(bq_client, dataset_name, table_name):
 def publish_to_topic(data):
     """Placeholder function for publishing data to a yet-to-be-defined topic."""
     # This function will be implemented later to publish data to a topic
+    topic_name = os.getenv('PUBLISH_TOPIC')
+    logging.info(f"PUBLISH_TOPIC: {topic_name}")
     pass
 
 def bq_load_from_gcs(event, context):
@@ -134,11 +136,10 @@ def bq_load_from_gcs(event, context):
             logging.error(f"Failed to load data from GCS to BigQuery: {e}")
             raise
 
-
-
-
         # Placeholder: Call the publish function when ready
         # publish_to_topic(your_data_here)
+        test_data = {"message": "Test message to verify environment variables"}
+        publish_to_topic(test_data)
 
     except Forbidden as e:
         logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
