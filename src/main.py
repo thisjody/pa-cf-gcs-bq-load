@@ -59,28 +59,6 @@ def check_and_create_dataset(bq_client, dataset_name, location='US'):
             logging.error(f"Failed to create dataset: {e}")
             raise
 
-'''
-def check_and_create_table(bq_client, dataset_name, table_name, schema):
-    """Check if a table exists within the dataset, if not create it with the provided schema."""
-    table_id = f"{PROJECT_ID}.{dataset_name}.{table_name}"
-    try:
-        table = bq_client.get_table(table_id)  # Make an API request.
-        logging.info(f"Table {table_name} already exists in dataset {dataset_name}.")
-    except NotFound as e:
-        # This is an expected exception in case the table does not exist, so INFO level may be more appropriate
-        logging.info(f"Table not found, which is expected if it does not exist yet: {e}")
-        
-        logging.info(f"Table {table_name} not found in dataset {dataset_name}. Creating it now.")
-        table = bigquery.Table(table_id, schema=schema)
-        # TODO: Set additional table properties, such as time partitioning, here if necessary.
-        try:
-            created_table = bq_client.create_table(table, timeout=30)  # Make an API request.
-            logging.info(f"Created table {created_table.project}.{created_table.dataset_id}.{created_table.table_id}")
-        except Exception as e:
-            # If there's an error in creating the table, log that exception as well.
-            logging.error(f"Failed to create table: {e}")
-            raise
-    '''
 
 def check_and_create_table(bq_client, dataset_name, table_name):
     """Check if a table exists within the dataset, if not create it."""
