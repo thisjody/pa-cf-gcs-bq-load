@@ -163,7 +163,13 @@ def bq_load_from_gcs(event, context):
         "table": table_name,
         "action": "Data loaded"
         }
-        publish_to_topic(os.getenv('PUBLISH_TOPIC'), message_data)
+
+        # Attempt to publish the message
+        try:
+            publish_to_topic(os.getenv('PUBLISH_TOPIC'), message_data)
+            logging.info("Message successfully published to Pub/Sub.")
+        except Exception as e:
+            logging.error(f"Failed to publish message: {e}")
 
     except Forbidden as e:
         logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
