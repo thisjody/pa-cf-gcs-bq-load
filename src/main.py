@@ -1,4 +1,4 @@
-from google.cloud import bigquery, secretmanager
+from google.cloud import bigquery, secretmanager, pubsub_v1
 from google.oauth2 import service_account
 from google.auth import impersonated_credentials
 from google.api_core.exceptions import NotFound, Forbidden
@@ -76,12 +76,33 @@ def check_and_create_table(bq_client, dataset_name, table_name):
             logging.error(f"Failed to create table: {e}")
             raise
 
-def publish_to_topic(data):
-    """Placeholder function for publishing data to a yet-to-be-defined topic."""
-    # This function will be implemented later to publish data to a topic
-    topic_name = os.getenv('PUBLISH_TOPIC')
-    logging.info(f"PUBLISH_TOPIC: {topic_name}")
-    pass
+def publish_to_topic(topic_name, data):
+    """Publish data to a Pub/Sub topic."""
+    try:
+        # Get the impersonated credentials for the 'publish' action
+        credentials = get_impersonated_credentials(action='publish')
+
+        # Initialize the Pub/Sub publisher client with the impersonated credentials
+        publisher = pubsub_v1.PublisherClient(credentials=credentials)
+
+        # Construct the topic path
+        topic_path = publisher.topic_path(PROJECT_ID, topic_name)
+
+        # Convert data to JSON string and encode it to bytes
+        message_json = json.dumps(data)
+        message_bytes = message_json.encode('utf-8')
+
+        # Publish the message
+        publish_future = publisher.publish(topic_path, message_bytes)
+
+        # Wait for the publish to complete
+        publish_future.result()
+
+        logging.info(f"Message published to topic {topic_name}")
+
+    except Exception as e:
+        logging.error(f"Failed to publish to topic {topic_name}: {e}")
+        raise
 
 def bq_load_from_gcs(event, context):
     """Function to handle Pub/Sub events and load data into BigQuery."""
@@ -136,10 +157,13 @@ def bq_load_from_gcs(event, context):
             logging.error(f"Failed to load data from GCS to BigQuery: {e}")
             raise
 
-        # Placeholder: Call the publish function when ready
-        # publish_to_topic(your_data_here)
-        test_data = {"message": "Test message to verify environment variables"}
-        publish_to_topic(test_data)
+        message_data = {
+        "project": PROJECT_ID,
+        "dataset": dataset_name,
+        "table": table_name,
+        "action": "Data loaded"
+        }
+        publish_to_topic(os.getenv('PUBLISH_TOPIC'), message_data)
 
     except Forbidden as e:
         logging.error(f'Error occurred: {str(e)}. Please check the Cloud Function has necessary permissions.')
