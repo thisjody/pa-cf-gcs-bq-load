@@ -229,6 +229,28 @@ fi
 source $ENV_FILE
 ```
 
+6. **Environment Variable Checks**: The script checks if all the required environment variables are set. If any are missing, the deployment will not proceed.
+
+```bash
+declare -a required_vars=("GEN2" "RUNTIME" ... "SA_CREDENTIALS_SECRET_NAME")
+...
+```
+
+7. **Cloud Function Deployment**: With all checks complete and the environment set up, the script deploys the Cloud Function using the `gcloud command`.
+
+```bash
+gcloud functions deploy $CLOUDFUNCTION \
+  --$GEN2 \
+  --runtime=$RUNTIME \
+  --region=$REGION \
+  --service-account=$SERVICE_ACCOUNT \
+  --source=$SOURCE \
+  --entry-point=$ENTRY_POINT \
+  --trigger-topic=$TRIGGER_TOPIC \
+  --memory=$MEMORY \
+  --timeout=$TIMEOUT \
+  --set-env-vars "$SET_ENV_VARS"
+  ```
 
 
 
