@@ -191,6 +191,43 @@ To use the script, execute the following command:
 ```bash
 ./pa_cf_gcs_bq_load_deploy.sh
 ```
+## Workflow
+
+1. **gcloud command check**: The script first checks if the `gcloud` command-line tool is available on the system. If not, an error is raised.
+
+```bash
+if ! command -v gcloud &> /dev/null; then
+    ...
+fi
+```
+
+2. **gcloud authentication check**: The script then checks if the user is authenticated with `gcloud`.
+
+```bash
+gcloud auth list &> /dev/null
+...
+```
+
+3. **.env file prompt**: The user is prompted to provide the path to an `.env` file that contains required environment variables.
+
+```bash
+echo "Enter the path to the .env file to use (e.g. ./myenvfile.env):"
+read ENV_FILE
+```
+
+4. **.env file verification**: It checks if the provided .env file exists and is readable.
+
+```bash
+if [[ ! -f "$ENV_FILE" || ! -r "$ENV_FILE" ]]; then
+    ...
+fi
+```
+
+5. **Source .env file**: The .env file's variables are loaded into the script's environment.
+
+```bash
+source $ENV_FILE
+```
 
 
 
