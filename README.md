@@ -181,4 +181,17 @@ For the `pa-cf-gcs-bq-load` Cloud Function to operate effectively, it is essenti
 
 Proper configuration of these roles and service accounts is critical for the secure and effective functioning of the `pa-cf-gcs-bq-load` Cloud Function within the Google Cloud environment.
 
+## Deployment Script for PA-CF-GCS-BQ-LOAD Cloud Function
+
+The `pa_cf_gcs_bq_load_deploy.sh` script streamlines the deployment of the `pa-cf-gcs-bq-load` Cloud Function. This script automates the deployment process, ensures that the necessary prerequisites are met, and correctly sets up the environment variables required for the function's operation.
+
+## Usage
+To use the script, execute the following command:
+
+```bash
+./pa_cf_gcs_bq_load_deploy.sh
+```
+
+
+
 
