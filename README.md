@@ -252,5 +252,82 @@ gcloud functions deploy $CLOUDFUNCTION \
   --set-env-vars "$SET_ENV_VARS"
   ```
 
+## .env File Configuration
+You should have an `deploy.env` file with the following variables defined:
+
+```bash
+GEN2=<value>
+RUNTIME=<value>
+REGION=<value>
+SERVICE_ACCOUNT=<value>
+CLOUDFUNCTION=<value>
+SOURCE=<value>
+ENTRY_POINT=<value>
+TRIGGER_TOPIC=<value>
+PUBLISH_TOPIC=<value>
+MEMORY=<value>
+TIMEOUT=<value>
+PROJECT_ID=<value>
+PUBLISH_SA=<value>
+LOAD_SA=<value>
+TARGET_SCOPES=<value>
+SA_CREDENTIALS_SECRET_NAME=<value>
+```
+
+Replace `<value>` with the appropriate values for your deployment.
+
+## Environment Variable Descriptions
+Below are descriptions for each environment variable used in the deployment script:
+
+- **GEN2**=`<value>`:
+  - Description: Specifies the generation of the Cloud Function to deploy. For example: `gen2` when you intend to deploy a second generation Google Cloud Function.
+
+- **RUNTIME**=`<value>`:
+  - Description: Specifies the runtime environment in which the Cloud Function executes. For example: `python311` for Python 3.11.
+
+- **REGION**=`<value>`:
+  - Description: The Google Cloud region where the Cloud Function will be deployed and run. Example values are `us-west1`, `europe-west1`, etc.
+
+- **SERVICE_ACCOUNT**=`<value>`:
+  - Description: The service account under which the Cloud Function will run. This defines the permissions that the Cloud Function has during execution.
+
+- **CLOUDFUNCTION**=`<value>`:
+   - Description: The name of the Cloud Function to be deployed. It is used in the deployment script to identify which function the `gcloud functions deploy` command will target. 
+
+- **SOURCE**=`<value>`:
+  - Description: Path to the source code of the Cloud Function. Typically, this points to a directory containing all the necessary files for the function.
+
+- **ENTRY_POINT**=`<value>`:
+  - Description: Specifies the name of the function or method within the source code to be executed when the Cloud Function is triggered.
+
+- **TRIGGER_TOPIC**=`<value>`:
+   - Description: The name of the Pub/Sub topic from which the Cloud Function will be triggered.
+
+- **$PUBLISH_TOPIC**=`<value>`:
+   - Description: The name of the Pub/Sub topic to which the Cloud Function will publish messages.
+
+- **MEMORY**=`<value>`:
+  - Description: The amount of memory to allocate for the Cloud Function. This is denoted in megabytes, e.g., `16384MB`.
+
+- **TIMEOUT**=`<value>`:
+  - Description: The maximum duration the Cloud Function is allowed to run before it is terminated. Expressed in seconds, e.g., `540s`.
+
+- **PROJECT_ID**=`<value>`:
+  - Description: The Google Cloud Project ID where the Cloud Function, GCS, and Pub/Sub reside.
+
+- **PUBLISH_SA**=`<value>`:
+  - Description: This is the service account used for publishing operations within the Cloud Function. It is designed to have specific permissions necessary for publishing data to Google Pub/Sub or other similar services. This account should have the appropriate roles and permissions for these tasks.
+
+- **LOAD_SA**=`<value>`:
+  - Description: This service account is used for data loading operations. It is specifically configured to interact with Google BigQuery and Google Cloud Storage for the purpose of loading data into BigQuery. It should have the necessary roles and permissions to access GCS, manage BigQuery datasets and tables, and perform data load operations.
+
+
+- **TARGET_SCOPES**=`<value>`:
+  - Description: The authentication scopes required for the impersonated service account. Example: `https://www.googleapis.com/auth/cloud-platform` for a full access scope to GCP services.
+
+- **SA_CREDENTIALS_SECRET_NAME**=`<value>`:
+  - Description: The name of the secret stored in Google Secret Manager that contains the service account credentials used by the Cloud Function.
+
+
 
 
