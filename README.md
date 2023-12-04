@@ -20,7 +20,7 @@ The `pa-cf-gcs-bq-load` function exemplifies a serverless approach, allowing for
 
 ## Utilize the PA-CF Shared Configs Toolkit
 
-For the effective deployment and management of the `pa-cf-gcs-bq-load` Cloud Function, it is essential to leverage the capabilities of the PA-CF Shared Configs Toolkit. This toolkit plays a crucial role in standardizing and streamlining the configuration process, ensuring that the cloud function operates seamlessly within the larger cloud infrastructure. Key aspects of the Shared Configs Toolkit include:
+For the effective deployment and management of the `pa-cf-gcs-bq-load` Cloud Function, it's vital to check out the [PA-CF Shared Configs Repository](https://github.com/acep-uaf/pa-cf-shared-configs). This toolkit plays a crucial role in standardizing and streamlining the configuration process, ensuring that the cloud function operates seamlessly within the larger cloud infrastructure. Key aspects of the Shared Configs Toolkit include:
 
 1. **Standardized Configuration**: The toolkit provides a set of standardized configurations that are essential for the consistent and error-free deployment of the cloud function.
 
@@ -320,7 +320,6 @@ Below are descriptions for each environment variable used in the deployment scri
 
 - **LOAD_SA**=`<value>`:
   - Description: This service account is used for data loading operations. It is specifically configured to interact with Google BigQuery and Google Cloud Storage for the purpose of loading data into BigQuery. It should have the necessary roles and permissions to access GCS, manage BigQuery datasets and tables, and perform data load operations.
-
 
 - **TARGET_SCOPES**=`<value>`:
   - Description: The authentication scopes required for the impersonated service account. Example: `https://www.googleapis.com/auth/cloud-platform` for a full access scope to GCP services.
