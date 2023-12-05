@@ -44,7 +44,7 @@ Before deploying and utilizing the `pa-cf-gcs-bq-load` Cloud Function, the follo
 
 2. **Google Cloud Project**: A Google Cloud Project is required where the Cloud Function, GCS, and Pub/Sub are hosted. Have your `PROJECT_ID` readily available for configuration.
 
-3. **Environment Variables**: The function relies on various environment variables for its operation. Ensure the following are set:
+3. **Environment Variables**: The function relies on various environment variables for its operation, such as:
     - `PROJECT_ID`: Your Google Cloud Project ID.
     - `PUBLISH_SA`: Service account for publishing operations.
     - `LOAD_SA`: Service account for data loading operations.
