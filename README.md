@@ -126,11 +126,9 @@ The `pa-cf-gcs-bq-load` Cloud Function is equipped with robust error handling me
 
 3. **Error Propagation**: In cases where errors cannot be resolved within the function (e.g., permission issues, invalid configurations), these errors are propagated upwards. This allows for external monitoring tools or workflows to detect and respond to these issues.
 
-4. **Retry Mechanism**: For transient errors, especially those related to network issues or temporary service unavailability, the function includes a retry mechanism. This helps in maintaining the function's resilience and reliability.
+4. **Secure Failure State**: In scenarios where continued operation could lead to data inconsistency or other critical issues, the function is designed to fail securely. This approach prioritizes data integrity and system stability.
 
-5. **Secure Failure State**: In scenarios where continued operation could lead to data inconsistency or other critical issues, the function is designed to fail securely. This approach prioritizes data integrity and system stability.
-
-6. **Alerting and Monitoring Integration**: The function's error handling integrates with Google Cloud's monitoring and alerting systems, enabling real-time notifications and in-depth analysis of error conditions.
+5. **Alerting and Monitoring Integration**: The function's error handling integrates with Google Cloud's monitoring and alerting systems, enabling real-time notifications and in-depth analysis of error conditions.
 
 Through these error handling strategies, the `pa-cf-gcs-bq-load` Cloud Function ensures that data processing workflows remain robust and dependable, even when encountering unforeseen challenges.
 
