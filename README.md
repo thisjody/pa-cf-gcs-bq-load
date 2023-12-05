@@ -159,25 +159,28 @@ The `pa-cf-gcs-bq-load` Cloud Function relies on several external dependencies t
 
 It's important to ensure that these dependencies are installed and properly configured before deploying and running the `pa-cf-gcs-bq-load` Cloud Function. This will help in avoiding runtime errors and ensure the function operates as expected.
 
-## Roles and Service Accounts
+## Service Accounts
 
-For the `pa-cf-gcs-bq-load` Cloud Function to operate effectively, it is essential to have properly configured roles and service accounts. This ensures that the function has the necessary permissions to access and manipulate cloud resources.
+The `PA-CF-GCS-BQ-LOAD` Cloud Function efficiently utilizes configurations from the [PA-CF Shared Configs Toolkit](https://github.com/acep-uaf/pa-cf-shared-configs) for managing service accounts. This approach ensures standardized, secure, and efficient deployment and operation within the cloud environment.
 
-1. **Deploy Role (`custom_role_pa_cf_deploy`)**:
-   - This role is used for deploying the Cloud Function.
-   - It should have permissions sufficient for the deployment process, including accessing Cloud Functions, Pub/Sub, Secret Manager, and any other resources the function interacts with.
-   - The role's definition can be found in `pa-cf-deploy-role.json`.
+### Service Accounts
 
-2. **Privileged Role (`custom_role_pa_gcs_bq_load_privileged`)**:
-   - A more privileged role, used by the function for executing its primary tasks like data loading and publishing.
-   - Permissions include read/write access to BigQuery, read access to GCS, and the ability to publish to Pub/Sub topics.
-   - The role's definition is specified in `pa-gcs-bq-load-privileged-role.json`. This document outlines the detailed permissions and capabilities assigned to this role, ensuring it has the necessary access rights while adhering to the principle of least privilege.
+The function employs three principal service accounts, each serving a distinct role in the function's lifecycle and operations:
 
-3. **Service Accounts**:
-   - **Deploy Service Account (`pa-cf-deploy-sa`)**: Specifically for the deployment of the Cloud Function. It is assigned the `custom_role_pa_cf_deploy` role.
-   - **Privileged Service Account (`pa-gcs-bq-load-privileged-sa`)**: Used by the function for higher privilege operations. It is assigned the `custom_role_pa_gcs_bq_load_privileged` role and is used in service account impersonation for specific tasks.
+1. **Deploy Service Account (`$SERVICE_ACCOUNT`)**:
+   - Responsible for the initial deployment of the Cloud Function.
+   - After deployment, it primarily functions to impersonate other service accounts (`PUBLISH_SA` and `LOAD_SA`) for specific tasks, thereby adhering to the principle of least privilege.
+   - The exact configuration of this service account is managed through the shared configs, ensuring secure and controlled deployment processes.
 
-Proper configuration of these roles and service accounts is critical for the secure and effective functioning of the `pa-cf-gcs-bq-load` Cloud Function within the Google Cloud environment.
+2. **Publish Service Account (`$PUBLISH_SA`)**:
+   - Used for publishing operations, particularly for sending messages to Google Cloud Pub/Sub.
+   - Its setup and permissions are defined within the shared configs, aligning with organizational security standards and operational requirements.
+
+3. **Load Service Account (`$LOAD_SA`)**:
+   - Specialized for data loading tasks, especially involving operations with Google BigQuery.
+   - The configuration of this service account, including its permissions, is also managed via the shared configs to ensure appropriate access controls.
+
+By leveraging the PA-CF Shared Configs Toolkit, these service accounts are configured to ensure that the `PA-CF-GCS-BQ-LOAD` Cloud Function operates securely, efficiently, and in compliance with best practices. For detailed information on these service accounts' configurations, refer to the [PA-CF Shared Configs Toolkit](https://github.com/acep-uaf/pa-cf-shared-configs).
 
 ## Deployment Script for PA-CF-GCS-BQ-LOAD Cloud Function
 
