@@ -153,13 +153,15 @@ The `pa-cf-gcs-bq-load` Cloud Function relies on several external dependencies t
     - `google-auth`: Provides authentication and authorization functionalities.
     - `google-auth-httplib2` and `google-auth-oauthlib`: Support libraries for `google-auth`.
     - `google-cloud-secret-manager`: The Python client library for accessing secrets stored in Google Secret Manager.
+    
+    These libraries provide authentication functionalities, essential for interacting securely with Google Cloud services and are listed in `requirements.txt` .
 
 7. **Logging and Error Handling Tools**:
     - `logging`: A standard Python library used for logging events and errors.
 
 It's important to ensure that these dependencies are installed and properly configured before deploying and running the `pa-cf-gcs-bq-load` Cloud Function. This will help in avoiding runtime errors and ensure the function operates as expected.
 
-## Service Accounts
+## Roles and Service Accounts
 
 The `PA-CF-GCS-BQ-LOAD` Cloud Function efficiently utilizes configurations from the [PA-CF Shared Configs Toolkit](https://github.com/acep-uaf/pa-cf-shared-configs) for managing service accounts. This approach ensures standardized, secure, and efficient deployment and operation within the cloud environment.
 
