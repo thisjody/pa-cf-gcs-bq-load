@@ -142,6 +142,8 @@ def bq_load_from_gcs(event, context):
             skip_leading_rows=1,  # Skip header row; adjust to 0 if no header is present
             autodetect=True,  # Enable schema auto-detection
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND  # Use WRITE_TRUNCATE to overwrite, WRITE_APPEND to append
+            allow_jagged_rows=True,  # Allow missing values in trailing columns
+            ignore_unknown_values=True  # Ignore extra columns not in the schema
         )
 
         # Load the data from GCS into BigQuery
