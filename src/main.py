@@ -77,26 +77,6 @@ def check_and_create_table(bq_client, dataset_name, table_name):
             raise
 
 
-def clean_and_cast_data(bq_client, dataset_name, table_name):
-    """Clean and cast data in BigQuery table."""
-    logging.info(f"Cleaned and casted data in {dataset_name}.{table_name} with {bq_client}")
-
-    # Execute a simple BigQuery query
-    test_query = f"""
-        SELECT COUNT(*) AS row_count
-        FROM `{PROJECT_ID}.{dataset_name}.{table_name}`
-    """
-    query_job = bq_client.query(test_query)  # Start the query
-    results = query_job.result()  # Wait for the query to finish
-
-    # Log the result of the query
-    for row in results:
-        logging.info(f"Row count in {dataset_name}.{table_name}: {row.row_count}")
-
-    # Log the completion of the function
-    logging.info(f"Completed test query in clean_and_cast_data")
-
-
 def publish_to_topic(topic_name, data):
     """Publish data to a Pub/Sub topic."""
     try:
@@ -176,14 +156,6 @@ def bq_load_from_gcs(event, context):
             logging.info(f"Job finished. Loaded data from {gcs_uri} into {dataset_name}.{table_name}")
         except Exception as e:
             logging.error(f"Failed to load data from GCS to BigQuery: {e}")
-            raise
-
-        # After loading the data, clean and cast the necessary columns
-        try:
-            clean_and_cast_data(bq_client, dataset_name, table_name)
-            logging.info(f"Fclean_and_cast_data call here")
-        except Exception as e:
-            logging.error(f"Failed to clean and cast data: {e}")
             raise
 
         message_data = {
