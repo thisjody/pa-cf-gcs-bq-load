@@ -6,6 +6,8 @@ import logging
 import base64
 import json
 import os
+import pandas as pd
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
