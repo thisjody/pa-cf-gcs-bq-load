@@ -7,3 +7,4 @@ google-cloud-secret-manager
 google-auth
 pandas
 numpy
+pandas_gbq
