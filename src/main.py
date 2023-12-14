@@ -1,13 +1,16 @@
-from google.cloud import bigquery, secretmanager, pubsub_v1
+from google.cloud import bigquery, secretmanager, pubsub_v1, storage
 from google.oauth2 import service_account
 from google.auth import impersonated_credentials
 from google.api_core.exceptions import NotFound, Forbidden
+import pandas as pd
+import numpy as np
+import re
 import logging
 import base64
 import json
 import os
-import pandas as pd
-import numpy as np
+import io
+
 
 logging.basicConfig(level=logging.INFO)
 PROJECT_ID = os.getenv('PROJECT_ID')
@@ -78,6 +81,53 @@ def check_and_create_table(bq_client, dataset_name, table_name):
             logging.error(f"Failed to create table: {e}")
             raise
 
+def sanitize_column_names(df):
+    """Sanitize column names to be BigQuery compatible."""
+    sanitized_columns = []
+    for col in df.columns:
+        # Replace periods and other forbidden characters with underscore
+        sanitized_col = re.sub(r'[^\w]', '_', col)
+        # Ensure column name starts with a letter or underscore
+        if not re.match(r'^[a-zA-Z_]', sanitized_col):
+            sanitized_col = '_' + sanitized_col
+        # Truncate column name if too long
+        sanitized_col = sanitized_col[:128]
+        sanitized_columns.append(sanitized_col)
+    df.columns = sanitized_columns
+    return df
+
+
+def preprocess_and_load_data(bq_client, bucket_name, file_name, dataset_name, table_name):
+    """Preprocess data using pandas and load it into BigQuery."""
+    # Generate a GCS URI
+    gcs_uri = f"gs://{bucket_name}/{file_name}"
+    logging.info(f"Processing file: {gcs_uri}")
+
+    # Fetch the impersonated credentials for 'load' action
+    credentials = get_impersonated_credentials(action='load')
+
+    # Initialize the GCS client with the impersonated credentials
+    storage_client = storage.Client(credentials=credentials)
+
+    # Read CSV file into a pandas DataFrame
+    blob = storage_client.bucket(bucket_name).get_blob(file_name)
+    csv_content = blob.download_as_text()
+    df = pd.read_csv(io.StringIO(csv_content))  # Use io.StringIO here
+
+    # Sanitize column names
+    df = sanitize_column_names(df)
+
+    # Replace 'None' string with numpy NaN
+    df.replace(to_replace=['None', 'none', 'NONE'], value=np.nan, inplace=True)
+
+    # Load the DataFrame into BigQuery using the impersonated credentials
+    df.to_gbq(destination_table=f"{dataset_name}.{table_name}",
+              project_id=PROJECT_ID, 
+              if_exists='append', 
+              credentials=credentials)
+
+    logging.info(f"Data loaded into {dataset_name}.{table_name}")
+
 
 def publish_to_topic(topic_name, data):
     """Publish data to a Pub/Sub topic."""
@@ -136,29 +186,8 @@ def bq_load_from_gcs(event, context):
         # Check and create the table if necessary
         check_and_create_table(bq_client, dataset_name, table_name)
 
-        gcs_uri = f"gs://{bucket}/{file_name}"
-        logging.info(f"gcs_uri: {gcs_uri}")
-
-        # Configure the BigQuery load job with auto-detection
-        job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.CSV,
-            skip_leading_rows=1,  # Skip header row; adjust to 0 if no header is present
-            autodetect=True,  # Enable schema auto-detection
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,  # Use WRITE_TRUNCATE to overwrite, WRITE_APPEND to append
-        )
-
-        # Load the data from GCS into BigQuery
-        load_job = bq_client.load_table_from_uri(
-            gcs_uri, f"{PROJECT_ID}.{dataset_name}.{table_name}", job_config=job_config
-        )
-
-        # Waits for the job to complete
-        try:
-            load_job.result()
-            logging.info(f"Job finished. Loaded data from {gcs_uri} into {dataset_name}.{table_name}")
-        except Exception as e:
-            logging.error(f"Failed to load data from GCS to BigQuery: {e}")
-            raise
+        # Preprocess data and load into BigQuery
+        preprocess_and_load_data(bq_client, bucket, file_name, dataset_name, table_name)
 
         message_data = {
         "project": PROJECT_ID,
