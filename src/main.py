@@ -83,6 +83,11 @@ def check_and_create_table(bq_client, dataset_name, table_name):
 
 def sanitize_column_names(df):
     """Sanitize column names to be BigQuery compatible."""
+
+    # Replace 'None' string with numpy NaN
+    df.replace(to_replace=['None', 'none', 'NONE'], value=np.nan, inplace=True)
+
+
     sanitized_columns = []
     for col in df.columns:
         # Replace periods and other forbidden characters with underscore
@@ -116,9 +121,6 @@ def preprocess_and_load_data(bq_client, bucket_name, file_name, dataset_name, ta
 
     # Sanitize column names
     df = sanitize_column_names(df)
-
-    # Replace 'None' string with numpy NaN
-    df.replace(to_replace=['None', 'none', 'NONE'], value=np.nan, inplace=True)
 
     # Load the DataFrame into BigQuery using the impersonated credentials
     df.to_gbq(destination_table=f"{dataset_name}.{table_name}",
