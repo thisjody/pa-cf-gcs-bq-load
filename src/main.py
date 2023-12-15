@@ -87,6 +87,10 @@ def sanitize_column_names(df):
     # Replace 'None' string with numpy NaN
     df.replace(to_replace=['None', 'none', 'NONE'], value=np.nan, inplace=True)
 
+    # Remove extra spaces within cells for object (string) columns
+    for col in df.select_dtypes(include=['object']):
+        df[col] = df[col].str.replace(r"\s+", " ", regex=True)
+
 
     sanitized_columns = []
     for col in df.columns:
