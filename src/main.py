@@ -93,7 +93,7 @@ def sanitize_column_names(df):
 
     # Remove extra spaces within cells for object (string) columns
     for col in df.select_dtypes(include=['object']):
-        df[col] = df[col].str.replace(r"\s+", " ", regex=True)
+        df[col] = df[col].str.replace(r"\s+", "", regex=True)
 
 
     sanitized_columns = []
