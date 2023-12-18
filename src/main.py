@@ -84,16 +84,18 @@ def check_and_create_table(bq_client, dataset_name, table_name):
 def sanitize_column_names(df):
     """Sanitize column names to be BigQuery compatible."""
 
-    # Replace 'None' string with numpy NaN
-    df.replace(to_replace=['None', 'none', 'NONE'], value=np.nan, inplace=True)
+    # Replace 'None' strings with numpy NaN
+    df.replace(to_replace=['None', 'none', 'NONE', ''], value=np.nan, inplace=True)
+
+    # Remove all spaces within cells for string columns, and convert them to floats if they are numeric
+    for col in df.select_dtypes(include=['object']):
+        if col != 'time_stamp':  # Skip timestamp column
+            df[col] = df[col].str.replace(r"\s+", "", regex=True)  # Remove all spaces
+            df[col] = pd.to_numeric(df[col], errors='coerce')  # Convert to numeric if possible, otherwise NaN
 
     # Limit decimal precision to 3 places for float columns
     for col in df.select_dtypes(include=['float']):
         df[col] = df[col].round(3)
-
-    # Remove extra spaces within cells for object (string) columns
-    for col in df.select_dtypes(include=['object']):
-        df[col] = df[col].str.replace(r"\s+", "", regex=True)
 
 
     sanitized_columns = []
