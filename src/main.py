@@ -127,7 +127,9 @@ def preprocess_and_load_data(bq_client, bucket_name, file_name, dataset_name, ta
     # Read CSV file into a pandas DataFrame
     blob = storage_client.bucket(bucket_name).get_blob(file_name)
     csv_content = blob.download_as_text()
-    df = pd.read_csv(io.StringIO(csv_content))  # Use io.StringIO here
+    #df = pd.read_csv(io.StringIO(csv_content))  # Use io.StringIO here
+    df = pd.read_csv(io.StringIO(csv_content), parse_dates=['time_stamp'])
+
 
     # Sanitize column names
     df = sanitize_column_names(df)
