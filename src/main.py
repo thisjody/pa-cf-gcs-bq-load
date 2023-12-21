@@ -100,8 +100,12 @@ def sanitize_column_names(df):
 
     sanitized_columns = []
     for col in df.columns:
+        # First, replace spaces and periods with a single underscore
+        sanitized_col = re.sub(r'[. ]+', '_', col)
         # Replace periods and other forbidden characters with underscore
-        sanitized_col = re.sub(r'[^\w]', '_', col)
+        sanitized_col = re.sub(r'[^\w]', '_', sanitized_col)
+        # Now, replace multiple consecutive underscores with a single underscore
+        sanitized_col = re.sub(r'__+', '_', sanitized_col)
         # Ensure column name starts with a letter or underscore
         if not re.match(r'^[a-zA-Z_]', sanitized_col):
             sanitized_col = '_' + sanitized_col
