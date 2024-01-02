@@ -76,22 +76,31 @@ The `pa-cf-gcs-bq-load` Cloud Function operates through a series of steps, orche
    - Upon activation, `pa-cf-gcs-bq-load` identifies the necessary action (such as data loading) and retrieves the appropriate service account credentials for impersonation through the `get_impersonated_credentials` function.
    - This function securely fetches credentials from the Google Secret Manager and creates impersonated credentials based on the required action.
 
-3. **BigQuery Client Initialization**:
-   - With the impersonated credentials, a BigQuery client is initialized. This client is utilized to manage datasets and tables in BigQuery and to load data into BigQuery tables.
+3. **Data Preprocessing with Pandas**:
+   - Upon triggering, the function fetches impersonated credentials for 'load' action to securely interact with GCS.
+   - It reads the CSV file from GCS into a pandas DataFrame, using the impersonated credentials to access the storage bucket.
+   - Data preprocessing includes handling missing values, where 'None', empty strings, and similar representations are converted to NumPy NaN values for consistency.
+   - Column names are sanitized to be compatible with BigQuery standards. This involves replacing spaces and special characters with underscores, ensuring column names start with a letter or underscore, and truncating them if they are too long.
+   - For columns inferred as strings due to inconsistent data (like whitespaces within numeric values), the function attempts to convert them to numeric types, resorting to NaN in case of conversion failure.
+   - Timestamps are parsed correctly, and data types for each column are set appropriately, ensuring data integrity.
 
-4. **Dataset and Table Management**:
+4. **BigQuery Client Initialization**:
+   - With the impersonated credentials, a BigQuery client is initialized. This client is utilized to manage datasets and tables in BigQuery and to load data into BigQuery tables.
+   
+
+5. **Dataset and Table Management**:
    - The function first checks for the existence of the specified dataset in BigQuery, creating it if necessary.
    - It also checks for the specified table within the dataset, creating it with the necessary configuration if it does not exist.
 
-5. **Data Loading**:
+6. **Data Loading**:
    - After parsing the Pub/Sub message to extract details like the bucket name and file name, the function constructs a URI for the GCS file.
    - It then sets up a BigQuery load job configuration with parameters such as source format, schema detection, and write disposition.
    - The data is loaded from the GCS file into the specified BigQuery table using this configuration.
 
-6. **Error Handling and Logging**:
+7. **Error Handling and Logging**:
    - Throughout its operation, the function logs various informational messages, including the steps being performed and any errors encountered. Robust error handling is implemented to log and raise exceptions, especially during critical operations like dataset/table creation and data loading.
 
-7. **Scalability and Flexibility**:
+8. **Scalability and Flexibility**:
    - Designed to handle various data formats and volumes, the function is a versatile tool for different data processing tasks within the Google Cloud environment.
 
 This operation flow enables the `pa-cf-gcs-bq-load` Cloud Function to automate data loading processes with a high degree of reliability, security, and scalability, fitting seamlessly into a modern cloud-based data pipeline.
