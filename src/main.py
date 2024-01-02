@@ -137,7 +137,7 @@ def preprocess_and_load_data(bq_client, bucket_name, file_name, dataset_name, ta
     # Sanitize column names
     df = sanitize_column_names(df)
 
-    # Load the DataFrame into BigQuery using the impersonated credentials
+    # Load the DataFrame into BigQuery using the impersonated credentials with PANDAS to_gbq method
     df.to_gbq(destination_table=f"{dataset_name}.{table_name}",
               project_id=PROJECT_ID, 
               if_exists='append', 
