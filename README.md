@@ -92,10 +92,10 @@ The `pa-cf-gcs-bq-load` Cloud Function operates through a series of steps, orche
    - The function first checks for the existence of the specified dataset in BigQuery, creating it if necessary.
    - It also checks for the specified table within the dataset, creating it with the necessary configuration if it does not exist.
 
-6. **Data Loading**:
-   - After parsing the Pub/Sub message to extract details like the bucket name and file name, the function constructs a URI for the GCS file.
-   - It then sets up a BigQuery load job configuration with parameters such as source format, schema detection, and write disposition.
-   - The data is loaded from the GCS file into the specified BigQuery table using this configuration.
+6. **Loading Data into BigQuery using `to_gbq`**:
+   - The `to_gbq` method is utilized for loading the processed DataFrame directly into a BigQuery table, using the load impersonated credentials.
+   - It also allows for appending data to existing tables without needing to specify the schema each time, making the process efficient and less error-prone.
+   - The `if_exists='append'` parameter in `to_gbq` ensures that data is appended to existing tables, facilitating incremental data loads.
 
 7. **Error Handling and Logging**:
    - Throughout its operation, the function logs various informational messages, including the steps being performed and any errors encountered. Robust error handling is implemented to log and raise exceptions, especially during critical operations like dataset/table creation and data loading.
