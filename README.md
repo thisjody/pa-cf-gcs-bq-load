@@ -125,21 +125,52 @@ The `pa-cf-gcs-bq-load` Cloud Function plays a pivotal role in the data processi
 
 The `pa-cf-gcs-bq-load` function stands out as a reliable, secure, and efficient solution for automating data flow from GCS to BigQuery, making it a valuable asset in the cloud data processing ecosystem.
 
-## Error Handling
+## Enhanced Error Handling Mechanisms
 
-The `pa-cf-gcs-bq-load` Cloud Function is equipped with robust error handling mechanisms to ensure reliable operation even in the face of unexpected issues. These mechanisms are designed to identify, log, and appropriately respond to various types of errors that may occur during the function's execution:
+The `pa-cf-gcs-bq-load` Cloud Function incorporates robust error handling mechanisms throughout its operation, ensuring reliable processing of data from Google Cloud Storage to BigQuery. This section outlines the error handling strategies employed during different stages of the function:
 
-1. **Logging of Exceptions**: All exceptions and errors encountered during the operation of the function are logged with detailed information. This includes errors during dataset and table creation, data loading, or while interacting with other cloud services.
+### During Pandas Data Preprocessing
 
-2. **Handling Google Cloud API Errors**: Specific errors related to Google Cloud APIs, such as `NotFound` and `Forbidden` exceptions, are caught and handled. This ensures that the function can gracefully handle issues such as missing resources or permission problems.
+1. **Data Type Conversion and Sanitization**:
+   - The function attempts to convert string columns to numeric types where appropriate, replacing non-numeric characters and handling missing values (`NaN`).
+   - Errors encountered during this conversion process, such as inability to convert a particular string to a float due to format inconsistencies, are logged for review and diagnosis.
+   - Data sanitization involves removing unwanted characters and standardizing column names to meet BigQuery's requirements. Any issues encountered here are logged, and the function employs strategies to correct them wherever possible.
 
-3. **Error Propagation**: In cases where errors cannot be resolved within the function (e.g., permission issues, invalid configurations), these errors are propagated upwards. This allows for external monitoring tools or workflows to detect and respond to these issues.
+2. **Timestamp Parsing**:
+   - The function parses the `time_stamp` column to ensure it's in the correct format for BigQuery. Errors in timestamp parsing are logged and handled to prevent data loading issues.
 
-4. **Secure Failure State**: In scenarios where continued operation could lead to data inconsistency or other critical issues, the function is designed to fail securely. This approach prioritizes data integrity and system stability.
+### While Using to_gbq for Data Loading
 
-5. **Alerting and Monitoring Integration**: The function's error handling integrates with Google Cloud's monitoring and alerting systems, enabling real-time notifications and in-depth analysis of error conditions.
+1. **Loading Process Handling**:
+   - The `to_gbq` method dynamically handles schema inconsistencies and manages the loading of data into BigQuery.
+   - The function logs detailed errors related to connectivity issues, permission problems, or BigQuery API exceptions during the loading process.
+   - The usage of impersonated credentials ensures that the function operates with the necessary permissions and access scopes required for data loading.
 
-Through these error handling strategies, the `pa-cf-gcs-bq-load` Cloud Function ensures that data processing workflows remain robust and dependable, even when encountering unforeseen challenges.
+2. **Handling Sparse Data**:
+   - The function is capable of handling cases where incoming data might be sparse or have missing columns. The `to_gbq` method manages these scenarios by aligning the data with the existing BigQuery table schema.
+
+### General Error Handling
+
+1. **BigQuery Client Initialization**:
+   - Errors encountered during the initialization of the BigQuery client, such as issues with impersonated credentials or connectivity problems, are logged for further action.
+
+2. **Dataset and Table Creation**:
+   - The function checks for the existence of the specified dataset and table in BigQuery and attempts to create them if they don't exist. Errors during this process, like permission denials or API failures, are logged.
+
+3. **Pub/Sub Message Processing**:
+   - Errors in processing Pub/Sub messages, such as issues in message decoding or JSON parsing, are captured and logged.
+
+4. **Comprehensive Logging and Error Propagation**:
+   - The function logs all errors with detailed information, aiding in troubleshooting and maintenance.
+   - In scenarios where the function cannot resolve errors internally, it propagates them for external monitoring and alerting.
+  
+6. **Secure Failure State**: 
+    - In scenarios where continued operation could lead to data inconsistency or other critical issues, the   function is designed to fail securely. This approach prioritizes data integrity and system stability.
+
+5. **Alerting and Monitoring Integration**: 
+    - The function's error handling integrates with Google Cloud's monitoring and alerting systems, enabling real-time notifications and in-depth analysis of error conditions.
+
+Through these enhanced error handling mechanisms, the `pa-cf-gcs-bq-load` Cloud Function ensures a robust and resilient operation, effectively managing various types of errors and exceptions that may occur during data processing and loading.
 
 ## Dependencies
 
