@@ -193,6 +193,9 @@ The `pa-cf-gcs-bq-load` Cloud Function relies on several external dependencies t
     - `google-auth`: Provides authentication and authorization functionalities.
     - `google-auth-httplib2` and `google-auth-oauthlib`: Support libraries for `google-auth`.
     - `google-cloud-secret-manager`: The Python client library for accessing secrets stored in Google Secret Manager.
+    - `pandas`: Essential for data manipulation and preprocessing before loading into BigQuery.
+    - `numpy`: Supporting `pandas` for numerical operations.
+    - `pandas_gbq`: A critical library used for loading data from pandas DataFrames directly into Google BigQuery.
 
     These libraries provide authentication functionalities, essential for interacting securely with Google Cloud services and are listed in `requirements.txt` .
 
