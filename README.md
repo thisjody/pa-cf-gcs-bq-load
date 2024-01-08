@@ -79,9 +79,39 @@ The `pa-cf-gcs-bq-load` Cloud Function operates through a series of steps, orche
 3. **Data Preprocessing with Pandas**:
    - Upon triggering, the function fetches impersonated credentials for 'load' action to securely interact with GCS.
    - It reads the CSV file from GCS into a pandas DataFrame, using the impersonated credentials to access the storage bucket.
-   - Data preprocessing includes handling missing values, where 'None', empty strings, and similar representations are converted to NumPy NaN values for consistency.
-   - Column names are sanitized to be compatible with BigQuery standards. This involves replacing spaces and special characters with underscores, ensuring column names start with a letter or underscore, and truncating them if they are too long.
+   - Data preprocessing includes handling missing values, where 'None', empty strings, and similar representations are converted to NumPy NaN values for consistency and to comply with loading jagged rows into BigQuery allowing for sparse data once the schema has been infered.
    - For columns inferred as strings due to inconsistent data (like whitespaces within numeric values), the function attempts to convert them to numeric types, resorting to NaN in case of conversion failure.
+
+      ```python
+      # Replace 'None' strings with numpy NaN
+      df.replace(to_replace=['None', 'none', 'NONE', ''], value=np.nan, inplace=True)
+
+      # Remove all spaces within cells for string columns, and convert them to floats if they are numeric
+      for col in df.select_dtypes(include=['object']):
+          if col != 'time_stamp':  # Skip timestamp column
+              df[col] = df[col].str.replace(r"\s+", "", regex=True)  # Remove all spaces
+              df[col] = pd.to_numeric(df[col], errors='coerce')  # Convert to numeric if possible, otherwise NaN
+
+      # Limit decimal precision to 3 places for float columns
+      for col in df.select_dtypes(include=['float']):
+          df[col] = df[col].round(3)
+      ```
+   - Column names are sanitized to be compatible with BigQuery standards. This involves replacing spaces and special characters with underscores, ensuring column names start with a letter or underscore, and truncating them if they are too long.
+   
+      ```python 
+      # Sanitize column names to be BigQuery compatible
+      sanitized_columns = []
+      for col in df.columns:
+          sanitized_col = re.sub(r'[^\w]', '_', col)  # Replace non-alphanumeric characters
+          sanitized_col = re.sub(r'__+', '_', sanitized_col)  # Replace multiple underscores
+          if not re.match(r'^[a-zA-Z_]', sanitized_col):
+              sanitized_col = '_' + sanitized_col  # Prepend underscore if starts with a digit
+          sanitized_col = sanitized_col[:128]  # Truncate if too long
+          sanitized_columns.append(sanitized_col)
+      df.columns = sanitized_columns
+      ```
+
+
    - Timestamps are parsed correctly, and data types for each column are set appropriately, ensuring data integrity.
 
 4. **BigQuery Client Initialization**:
