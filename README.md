@@ -76,6 +76,10 @@ The `pa-cf-gcs-bq-load` Cloud Function operates through a series of steps, orche
    - Upon activation, `pa-cf-gcs-bq-load` identifies the necessary action (such as data loading) and retrieves the appropriate service account credentials for impersonation through the `get_impersonated_credentials` function.
    - This function securely fetches credentials from the Google Secret Manager and creates impersonated credentials based on the required action.
 
+3. **Enable IAM Service Account Credentials API**: 
+   - To utilize service account impersonation features within the Cloud Function, the IAM Service Account Credentials API must be enabled in your Google Cloud Project. This API is crucial for allowing the deployment service account to impersonate another service account, ensuring secure and scoped access to Google Cloud resources. 
+   - Enabling this API can be done through the Google Cloud Console or using the gcloud command-line tool. For more information and steps on enabling this API, please refer to [Enabling and Disabling Services](https://cloud.google.com/service-usage/docs/enable-disable).
+
 3. **Data Preprocessing with Pandas**:
    - Upon triggering, the function fetches impersonated credentials for 'load' action to securely interact with GCS.
    - It reads the CSV file from GCS into a pandas DataFrame, using the impersonated credentials to access the storage bucket.
